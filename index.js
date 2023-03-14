@@ -17,7 +17,7 @@ app.use(cookieParser());
 const connect = async () => {
   try {
     await mongoose.connect(process.env.MONGODB_URL);
-    console.log("connected to mongodb");
+    console.log("connected to mongodb database");
   } catch (error) {
     throw error;
   }
@@ -34,7 +34,7 @@ app.use("/rooms", roomsRouteHandler);
 
 app.use((err, req, res, next) => {
   const status = err.status || 500;
-  const message = err.message || "something is wrong!";
+  const message = err.message || "something went wrong!";
   res.status(status).json({
     success: false,
     message: message,

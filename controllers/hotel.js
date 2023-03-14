@@ -1,4 +1,5 @@
 import Hotel from "../models/Hotel.js";
+import Room from "../models/Room.js";
 
 export const createHotel = async (req, res, next) => {
   const newHotel = new Hotel(req.body);
@@ -37,6 +38,7 @@ export const deleteHotel = async (req, res, next) => {
 export const getSingleHotel = async (req, res, next) => {
   try {
     const hotel = await Hotel.findById(req.params.id);
+    console.log(req.params.id);
     res.status(200).json(hotel);
   } catch (err) {
     next(err);
@@ -44,9 +46,27 @@ export const getSingleHotel = async (req, res, next) => {
 };
 
 export const getAllHotel = async (req, res, next) => {
+  const { min, max, ...others } = req.query;
   try {
-    const hotels = await Hotel.find();
+    const hotels = await Hotel.find({
+      ...others,
+      cheapestPrice: { $gt: min || 1, $lte: max || 1200 },
+    }).limit(req.query.limit);
     res.status(200).json(hotels);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getHotelRooms = async (req, res, next) => {
+  try {
+    const hotel = await Hotel.findById(req.params.id);
+    const list = await Promise.all(
+      hotel.rooms.map((room) => {
+        return Room.findById(room);
+      })
+    );
+    res.status(200).json(list);
   } catch (err) {
     next(err);
   }

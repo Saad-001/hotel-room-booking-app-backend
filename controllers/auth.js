@@ -8,8 +8,7 @@ export const register = async (req, res, next) => {
     const salt = bcrypt.genSaltSync(saltRounds);
     const hash = bcrypt.hashSync(req.body.password, salt);
     const newUser = new User({
-      userName: req.body.userName,
-      email: req.body.email,
+      ...req.body,
       password: hash,
       isAdmin: req.body.isAdmin,
     });
@@ -23,7 +22,7 @@ export const register = async (req, res, next) => {
 export const logIn = async (req, res, next) => {
   try {
     const user = await User.findOne({ userName: req.body.userName });
-    if (!user) return next({ status: 402, message: "user not found!" });
+    if (!user) return next({ status: 404, message: "user not found!" });
 
     const passwordIsCorrect = await bcrypt.compare(
       req.body.password,
@@ -44,9 +43,10 @@ export const logIn = async (req, res, next) => {
     res
       .cookie("access_token", token, {
         httpOnly: true,
+        signed: true,
       })
       .status(200)
-      .json({ ...otherData });
+      .json({ details: { ...otherData }, isAdmin });
   } catch (err) {
     next(err);
   }

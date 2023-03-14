@@ -18,7 +18,7 @@ export const updateUser = async (req, res, next) => {
 export const deleteUser = async (req, res, next) => {
   try {
     await User.findByIdAndDelete(req.params.id);
-    res.status(200).json("Hotel has been deleted");
+    res.status(200).json("user has been deleted");
   } catch (err) {
     next(err);
   }
